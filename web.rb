@@ -79,6 +79,40 @@ post '/register_reader' do
   return reader.to_json
 end
 
+
+post '/create_location' do
+  validationError = validateApiKey
+  if !validationError.nil?
+    status 400
+    return log_info(validationError)
+  end
+
+  begin
+    location = Stripe::Terminal::Location.create({
+      display_name: params[:display_name],
+      address: {
+        line1: params[:line1],
+        city: params[:city],
+        postal_code: params[:postal_code],
+        state: params[:state],
+        country: params[:country]
+      },
+    })
+  rescue Stripe::StripeError => e
+    status 402
+    return log_info("Error registering reader! #{e.message}")
+  end
+
+  log_info("Location Created: #{location.id}")
+
+  status 200
+  # Note that returning the Stripe reader object directly creates a dependency between your
+  # backend's Stripe.api_version and your clients, making future upgrades more complicated.
+  # All clients must also be ready for backwards-compatible changes at any time:
+  # https://stripe.com/docs/upgrades#what-changes-does-stripe-consider-to-be-backwards-compatible
+  return location.to_json
+end
+
 # This endpoint creates a ConnectionToken, which gives the SDK permission
 # to use a reader with your Stripe account.
 # https://stripe.com/docs/terminal/sdk/js#connection-token
