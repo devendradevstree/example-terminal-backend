@@ -7,6 +7,10 @@ require 'sinatra/cross_origin'
 # Browsers require that external servers enable CORS when the server is at a different origin than the website.
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 # This enables the requires CORS headers to allow the browser to make the requests from the JS Example App.
+
+set :port, ENV['PORT'] || 4567
+set :bind, '0.0.0.0'
+
 configure do
   enable :cross_origin
 end
